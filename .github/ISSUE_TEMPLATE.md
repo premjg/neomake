@@ -10,11 +10,10 @@
 Include if relevant.
 
 Please execute `:let g:neomake_verbose = 3` to enable verbose output, which
-might help showing the issue already.
-Look at `:messages` to see them.
+might help showing the issue already.  Look at `:messages` for its output.
 -->
 
-### Output of the ":verb NeomakeInfo" command
+### Output from (verbose) NeomakeInfo
 
 <!--
 Paste the output from `:verbose NeomakeInfo` here.
