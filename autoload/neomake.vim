@@ -575,7 +575,8 @@ function! s:Make(options) abort
         return []
     endif
     call neomake#utils#DebugMessage(printf('Running makers: %s',
-                \ join(map(copy(enabled_makers), 'v:val.name'), ', ')))
+                \ join(map(copy(enabled_makers), 'v:val.name'), ', ')),
+                \ {'make_id': s:make_id})
     let maker = {}
     while len(enabled_makers)
         let maker = remove(enabled_makers, 0)
