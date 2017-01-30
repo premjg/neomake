@@ -536,38 +536,6 @@ function! s:Make(options) abort
                     \ 'cwd': getcwd(),
                     \ }
 
-        if file_mode
-            call neomake#statusline#ResetCountsForBuf(bufnr)
-        else
-            call neomake#statusline#ResetCountsForProject()
-        endif
-
-        " Empty the quickfix/location list (using a valid 'errorformat' setting).
-        let l:efm = &errorformat
-        try
-            let &errorformat = '%-G'
-            if file_mode
-                lgetexpr ''
-            else
-                cgetexpr ''
-            endif
-        finally
-            let &errorformat = l:efm
-        endtry
-        call s:HandleLoclistQflistDisplay(file_mode)
-
-        if file_mode
-            if g:neomake_place_signs
-                call neomake#signs#ResetFile(bufnr)
-            endif
-            let s:need_errors_cleaning['file'][bufnr] = 1
-        else
-            if g:neomake_place_signs
-                call neomake#signs#ResetProject()
-            endif
-            let s:need_errors_cleaning['project'] = 1
-        endif
-
         call s:AddMakeInfoForCurrentWin(s:make_id)
     endif
 
@@ -751,6 +719,10 @@ endfunction
 
 function! s:CleanJobinfo(jobinfo) abort
     call neomake#utils#DebugMessage('Cleaning jobinfo', a:jobinfo)
+
+    " XXX: later?! (see clearing below)
+    call s:init_job_output(a:jobinfo)
+
     if has_key(a:jobinfo, 'id')
         call remove(s:jobs, a:jobinfo.id)
 
@@ -807,6 +779,45 @@ function! s:CanProcessJobOutput() abort
     return 0
 endfunction
 
+function! s:init_job_output(jobinfo) abort
+    if get(s:make_info[a:jobinfo.make_id], 'first_finished', 0)
+        return
+    endif
+
+    if a:jobinfo.file_mode
+        call neomake#statusline#ResetCountsForBuf(a:jobinfo.bufnr)
+    else
+        call neomake#statusline#ResetCountsForProject()
+    endif
+
+    " Empty the quickfix/location list (using a valid 'errorformat' setting).
+    let l:efm = &errorformat
+    try
+        let &errorformat = '%-G'
+        if a:jobinfo.file_mode
+            lgetexpr ''
+        else
+            cgetexpr ''
+        endif
+    finally
+        let &errorformat = l:efm
+    endtry
+    call s:HandleLoclistQflistDisplay(a:jobinfo.file_mode)
+
+    if a:jobinfo.file_mode
+        if g:neomake_place_signs
+            call neomake#signs#ResetFile(a:jobinfo.bufnr)
+        endif
+        let s:need_errors_cleaning['file'][a:jobinfo.bufnr] = 1
+    else
+        if g:neomake_place_signs
+            call neomake#signs#ResetProject()
+        endif
+        let s:need_errors_cleaning['project'] = 1
+    endif
+    let s:make_info[a:jobinfo.make_id].first_finished = 1
+endfunction
+
 function! s:ProcessJobOutput(jobinfo, lines, source) abort
     let maker = a:jobinfo.maker
     let file_mode = a:jobinfo.file_mode
@@ -823,6 +834,8 @@ function! s:ProcessJobOutput(jobinfo, lines, source) abort
         let l:neomake_output_source = a:source
         call map(a:lines, maker.mapexpr)
     endif
+
+    call s:init_job_output(a:jobinfo)
 
     let olderrformat = &errorformat
     let &errorformat = maker.errorformat
