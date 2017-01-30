@@ -205,10 +205,13 @@ function! neomake#utils#MakerIsAvailable(ft, maker_name) abort
         return 1
     endif
 
-    let maker = neomake#GetMaker(a:maker_name, a:ft)
-    if empty(maker)
+    try
+        let maker = neomake#GetMaker(a:maker_name, a:ft)
+    catch /^Neomake: /
+        let error = substitute(v:exception, '^Neomake: ', '', '')
+        call neomake#utils#DebugMessage(printf('Maker %s is not available: %s', a:maker_name, error))
         return 0
-    endif
+    endtry
 
     if (type(maker.exe) == type(function('tr')))
         let l:executable = call(maker.exe, [])
