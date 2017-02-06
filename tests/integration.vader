@@ -423,13 +423,16 @@ Execute (Neomake: append_file from settings):
     \ [{'lnum': 0, 'bufnr': 0, 'col': 0, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'output'}]
 
 Execute (Quickfix list should be cleared only after maker finished):
-  cgetexpr 'foo'
-  AssertEqual getqflist()[0].text, 'foo'
+  cgetexpr 'init'
+  AssertEqual getqflist()[0].text, 'init'
 
-  NeomakeSh echo 1
+  NeomakeSh echo finished
   if neomake#has_async_support()
-    AssertEqual getqflist()[0].text, 'foo'
+    AssertEqual getqflist()[0].text, 'init'
   else
-    AssertEqual getqflist()[0].text, '1'
+    AssertEqual getqflist()[0].text, 'finished'
   endif
   NeomakeTestsWaitForFinishedJobs
+  if neomake#has_async_support()
+    AssertEqual getqflist()[0].text, 'finished'
+  endif
