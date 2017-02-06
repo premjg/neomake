@@ -61,6 +61,7 @@ install:
 
 script:
   - |
+    set -ex
     if [ -n "$SKIP_BUILD_REASON" ]; then
       echo "Skipping job: $SKIP_BUILD_REASON"
     elif [ "$ENV" = "vint-diff" ]; then
