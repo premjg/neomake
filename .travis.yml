@@ -66,7 +66,8 @@ script:
       echo "Skipping job: $SKIP_BUILD_REASON"
     elif [ "$ENV" = "vint-diff" ]; then
       if [ -n "$CHANGED_VIM_FILES" ]; then
-        vint $CHANGED_VIM_FILES | grep -v '^autoload/neomake/makers/.*Use the abort attribute for functions in autoload'
+        make vint LINT_FILES="$CHANGED_VIM_FILES" \
+          | grep -v '^autoload/neomake/makers/.*Use the abort attribute for functions in autoload'
         if [ "$?" != 1 ]; then
           echo "vint-diff found errors."
           exit 1
