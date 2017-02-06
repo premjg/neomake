@@ -286,7 +286,9 @@ Execute (NeomakeSh: two jobs after each other):
     NeomakeSh sh -c 'echo 2'
     NeomakeTestsWaitForFinishedJobs
     AssertEqual len(g:neomake_test_finished), 2
-    AssertEqual sort(map(copy(getqflist()), 'v:val.text')), ['1', '2']
+    " NOTE: 2nd job clears list.
+    " TODO: add a command/option to skip that, e.g. NeomakeSh -append?!
+    AssertEqual len(getqflist()), 1, 'only one quickfix entry'
     AssertEqual len(g:neomake_test_finished), 2, 'two jobs have run'
   endif
 
