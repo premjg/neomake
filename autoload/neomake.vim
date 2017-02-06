@@ -9,7 +9,7 @@ let s:make_options = {}
 let s:jobs_by_maker = {}
 " Errors by [maker_type][bufnr][lnum]
 let s:current_errors = {
-    \ 'project': {},
+    \ "project": {},
     \ 'file': {}
     \ }
 let s:need_errors_cleaning = {
