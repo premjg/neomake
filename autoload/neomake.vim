@@ -536,6 +536,15 @@ function! s:Make(options) abort
                     \ 'cwd': getcwd(),
                     \ }
 
+        if file_mode
+            " XXX: this clears counts for job's buffer only, but we
+            "      add counts for the entry's buffers, which might be
+            "      different!
+            call neomake#statusline#ResetCountsForBuf(bufnr)
+        else
+            call neomake#statusline#ResetCountsForProject()
+        endif
+
         call s:AddMakeInfoForCurrentWin(s:make_id)
     endif
 
@@ -784,11 +793,6 @@ function! s:init_job_output(jobinfo) abort
         return
     endif
 
-    if a:jobinfo.file_mode
-        call neomake#statusline#ResetCountsForBuf(a:jobinfo.bufnr)
-    else
-        call neomake#statusline#ResetCountsForProject()
-    endif
 
     " Empty the quickfix/location list (using a valid 'errorformat' setting).
     let l:efm = &errorformat
